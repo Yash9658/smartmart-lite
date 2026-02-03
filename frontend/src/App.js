@@ -271,10 +271,17 @@ const Cart = ({ updateCartCount }) => {
     updateCartCount();
   };
   
-  const total = items.reduce((sum, item) => {
-    const price = item.discount_percent > 0 ? item.price * (100 - item.discount_percent) / 100 : item.price;
-    return sum + (price * item.quantity);
-  }, 0);
+const total = items.reduce((sum, item) => {
+  const price = safeNumber(item.price);
+  const discount = safeNumber(item.discount_percent);
+  const finalPrice =
+    discount > 0
+      ? price * (100 - discount) / 100
+      : price;
+
+  return sum + finalPrice * safeNumber(item.quantity);
+}, 0);
+
   
   const token = localStorage.getItem('token');
   const user = getParsedUser();
@@ -302,7 +309,14 @@ const Cart = ({ updateCartCount }) => {
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
         <div>
           {items.map(item => {
-            const finalPrice = item.discount_percent > 0 ? item.price * (100 - item.discount_percent) / 100 : item.price;
+            const price = safeNumber(item.price);
+const discount = safeNumber(item.discount_percent);
+
+const finalPrice =
+  discount > 0
+    ? price * (100 - discount) / 100
+    : price;
+
             return (
               <div key={item.id} style={{ display: 'flex', background: 'white', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', alignItems: 'center', gap: '1rem' }}>
                 <img src={item.image || item.image_url} alt={item.name} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '6px' }} />
